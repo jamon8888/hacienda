@@ -15,12 +15,11 @@ argument-hint: "[full | incremental]"
 ## Workflow
 
 1. Parse `$1`: `"full"` → `force=true`, anything else → `force=false`.
-2. Call `mcp__hacienda__resolve_project_for_folder(folder=<active>)` → `project`.
-3. Call `mcp__hacienda__bootstrap_client_folder(folder=<active>)` (idempotent).
-4. Call `mcp__hacienda__index_path(path=<active>, recursive=true, force=<from step 1>, project=<project>)`.
-5. Poll `hacienda://folders/{b64_path}/status` every few seconds. Stream progress to the user: *"Indexing: 134 / 247 files …"*.
-6. When `state == "ready"`, report: *"Indexed 247 files, 1 823 chunks, 0 errors. Ready."*
-7. If `errors` is non-empty, show the list and suggest re-running `/index full` on the affected files.
+2. Call `mcp__hacienda__bootstrap_client_folder(folder=<active>)` → `project`. This is idempotent on re-run and already resolves the project hash, so no separate `resolve_project_for_folder` call is needed.
+3. Call `mcp__hacienda__index_path(path=<active>, recursive=true, force=<from step 1>, project=<project>)`.
+4. Poll `piighost://folders/{b64_path}/status` every few seconds (resource URIs keep the server-declared `piighost://` scheme — the Cowork alias only rewrites tool-name prefixes). Stream progress to the user: *"Indexing: 134 / 247 files …"*.
+5. When `state == "ready"`, report: *"Indexed 247 files, 1 823 chunks, 0 errors. Ready."*
+6. If `errors` is non-empty, show the list and suggest re-running `/index full` on the affected files.
 
 ## Errors
 

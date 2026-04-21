@@ -12,16 +12,16 @@ description: Show the index state of the folder currently open in Cowork — how
 ## Workflow
 
 1. Call `mcp__hacienda__resolve_project_for_folder(folder=<active>)` → `folder, project`.
-2. Read `hacienda://folders/{b64_path}/status`.
+2. Read `piighost://folders/{b64_path}/status` (resource URIs keep the server-declared `piighost://` scheme; the Cowork alias only rewrites tool-name prefixes).
 3. Render:
 
 ```
 Folder:       <absolute path>
 Project:      <project hash>
-State:        <ready|indexing|error|empty>
+State:        <ready|empty>
 Indexed docs: <total_docs>
 Chunks:       <total_chunks>
-Last update:  <last_update> (or "never")
+Last update:  <last_update ISO 8601> (or "never" when null)
 Errors:       <n> (list up to 5, then "...and <n-5> more")
 ```
 
