@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "description": "PII-safe RAG over your client folders, directly inside Claude Desktop. Built for regulated professionals (avocats, notaires, experts-comptables, médecins) bound by professional secrecy. Indexes folders locally, redacts outbound requests, cites sources.",
   "author": {
-    "name": "piighost team"
-  }
+    "name": "piighost team",
+    "url": "https://github.com/jamon8888/hacienda"
+  },
+  "homepage": "https://github.com/jamon8888/hacienda",
+  "repository": "https://github.com/jamon8888/hacienda",
+  "keywords": ["rag", "pii", "gdpr", "cowork", "legal", "secret-professionnel", "french"],
+  "license": "MIT"
 }
