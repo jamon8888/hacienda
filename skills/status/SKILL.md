@@ -25,7 +25,7 @@ Last update:  <last_indexed_at ISO 8601> (or "never" when null)
 Errors:       <total_errors>
   - <errors[0].file_name> — <errors[0].category> (<relative time from indexed_at>)
   - <errors[1].file_name> — <errors[1].category> (<relative time>)
-  ... up to 5 lines, then "(and <total_errors - 5> more)" if applicable
+  ... up to 5 lines, then "(and <len(errors) - 5> more)" if applicable
   ↳ Showing 50 most recent of <total_errors>. Run /index to refresh.
 ```
 
