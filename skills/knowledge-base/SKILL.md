@@ -49,11 +49,12 @@ where `b64_path = base64.urlsafe_b64encode(folder.encode()).decode().rstrip("=")
 
 > **Note on the URI scheme.** MCP resource URIs are opaque strings owned by the server — they are NOT rewritten by the `hacienda` alias in `.mcp.json`. Tool names get the `mcp__hacienda__*` prefix; resource URIs keep their server-declared scheme, which is `piighost://`.
 
-- `state == "empty"`: tell the user *"Indexing this folder — I'll answer as soon as it's ready. You can also run `/index` to force a full scan."* and call `mcp__hacienda__index_path(path=<folder>, project=<project>)` in the background.
-- `state == "ready"`: proceed.
-- `errors` non-empty: surface the error list to the user; suggest `/index`.
+The resource returns `{folder, project, state, total_docs, total_chunks, last_indexed_at}`.
 
-(The v0 resource only emits `empty` or `ready` — there is no distinct `indexing` state. A running index simply shows `empty` until the first chunks land, then `ready`.)
+- `state == "empty"`: tell the user *"Indexing this folder — I'll answer as soon as it's ready. You can also run `/index` to force a full scan."* and call `mcp__hacienda__index_path(path=<folder>, project=<project>)` in the background.
+- `state == "indexed"`: proceed.
+
+(The v0 resource only emits `empty` or `indexed` — there is no distinct `indexing` state. A running index simply shows `empty` until the first chunks land, then `indexed`. Per-file error reporting is exposed by `index_path`'s return value, not by the status resource.)
 
 ### Step 4 — Retrieve
 
@@ -80,8 +81,8 @@ Once per user turn, append:
 ```
 mcp__hacienda__session_audit_append(
   session_id=<project>,
-  event="query",
-  payload={"question_hash": <sha256_hex_of_question>, "n_excerpts": <n>, "project": <project>},
+  op="query",
+  metadata={"question_hash": <sha256_hex_of_question>, "n_excerpts": <n>, "project": <project>},
 )
 ```
 
@@ -100,11 +101,11 @@ If the user asks you to draft a reply, email, Slack message, or to call `WebFetc
 ## Refusals
 
 - If the user asks about a folder that is *not* the currently open Cowork folder, refuse and suggest switching folders. Never accept a folder path as a prompt argument.
-- If `vault_key_provisioned` from bootstrap is false, refuse — something is broken upstream.
+- If `bootstrap_client_folder` raises an error or `query` keeps returning empty for a folder you know contains files, refuse — something is broken upstream — and tell the user to run `/status`.
 
 ## Edge cases
 
-- Network drive (`Z:\`, `\\server\share`): watchers are unreliable. If `state == "ready"` but `last_update` is >10 minutes old, warn the user and suggest `/index`.
+- Network drive (`Z:\`, `\\server\share`): watchers are unreliable. If `state == "indexed"` but `last_indexed_at` is >10 minutes old, warn the user and suggest `/index`.
 - Folder with >5 000 files: indexing may take several minutes. The first query after `/index` can return fewer results than expected — re-running the query once the status chip shows `ready` is the fix.
 
 ## Never do

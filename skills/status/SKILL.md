@@ -18,12 +18,13 @@ description: Show the index state of the folder currently open in Cowork — how
 ```
 Folder:       <absolute path>
 Project:      <project hash>
-State:        <ready|empty>
+State:        <indexed|empty>
 Indexed docs: <total_docs>
 Chunks:       <total_chunks>
-Last update:  <last_update ISO 8601> (or "never" when null)
-Errors:       <n> (list up to 5, then "...and <n-5> more")
+Last update:  <last_indexed_at ISO 8601> (or "never" when null)
 ```
 
 4. If `state == "empty"`, suggest `/index` to the user.
-5. If `last_update` is older than 10 minutes on a network drive, suggest `/index incremental`.
+5. If `last_indexed_at` is older than 10 minutes on a network drive, suggest `/index incremental`.
+
+(Per-file error reporting is not exposed by the v0 status resource. To see indexing errors, look at the most recent `mcp__hacienda__index_path` return value or run `/index` to surface them on the next pass.)
