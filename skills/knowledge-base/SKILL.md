@@ -1,6 +1,6 @@
 ---
 name: knowledge-base
-description: Search and answer questions from the user's current Cowork folder using PII-safe hybrid retrieval (BM25 + semantic vectors, cross-encoder reranker). Use whenever the user asks about documents, emails, contracts, notes, invoices, or any content in the folder Cowork is currently pointed at. Always cites sources with file paths and excerpts. Placeholders like «PER_001» in retrieved excerpts are intentional — see the redact-outbound skill before including them in any draft sent to external tools (email, Slack, webfetch).
+description: Search and answer questions from the user's current Cowork folder using PII-safe hybrid retrieval (BM25 + semantic vectors, cross-encoder reranker). Auto-refreshes the index incrementally before every retrieval, so files added/modified/removed since the last question are picked up without the user invoking /index. Use whenever the user asks about documents, emails, contracts, notes, invoices, or any content in the folder Cowork is currently pointed at. Always cites sources with file paths and excerpts. Placeholders like «PER_001» in retrieved excerpts are intentional — see the redact-outbound skill before including them in any draft sent to external tools (email, Slack, webfetch).
 ---
 
 # knowledge-base — PII-safe retrieval over the current folder
@@ -37,9 +37,36 @@ mcp__piighost__bootstrap_client_folder(folder=<abs_path>)
 
 This is cheap on re-run. It ensures the data dir, vault key, and project exist.
 
-### Step 3 — Check index status
+### Step 3 — Refresh the index (auto-incremental)
 
-Call:
+Always run an incremental index before answering, so any file the user
+just added/modified/deleted in the folder is picked up without them
+having to invoke `/index` first:
+
+```
+mcp__piighost__index_path(
+  path=<abs_path>,
+  project=<project>,
+  recursive=true,
+  force=false,
+)
+```
+
+This is **incremental and cheap when nothing changed** (~10ms for a
+folder of 14 files where every file's mtime+size matches the index).
+Only files that are genuinely new or modified pay the extraction +
+embedding cost. The return value tells you what happened:
+`{indexed, modified, deleted, unchanged, errors, duration_ms}`.
+
+- If `indexed > 0` or `modified > 0` and `duration_ms > 1500`, briefly
+  tell the user *"Indexed N new files first…"* before continuing — this
+  avoids surprising them when a question takes longer than usual.
+- If `errors` is non-empty, surface the list and continue with retrieval
+  on the rest. Don't refuse the question just because one PDF is corrupt.
+
+### Step 4 — Check index status
+
+After the refresh, call:
 
 ```
 mcp__piighost__folder_status(folder=<abs_path>)
@@ -47,12 +74,17 @@ mcp__piighost__folder_status(folder=<abs_path>)
 
 The tool returns `{folder, project, state, total_docs, total_chunks, last_indexed_at, errors, errors_truncated, total_errors}`.
 
-- `state == "empty"`: tell the user *"Indexing this folder — I'll answer as soon as it's ready. You can also run `/index` to force a full scan."* and call `mcp__piighost__index_path(path=<folder>, project=<project>)` in the background.
+- `state == "empty"` and `total_docs == 0`: the folder genuinely has no
+  indexable content. Tell the user *"This folder has no indexed
+  documents — add files (PDF, DOCX, XLSX, TXT, CSV, …) and ask
+  again."* Stop.
 - `state == "indexed"`: proceed.
 
-(The v0 status only emits `empty` or `indexed` — there is no distinct `indexing` state. A running index simply shows `empty` until the first chunks land, then `indexed`. Per-file errors are surfaced via the `errors` array.)
+(`state` only emits `empty` or `indexed` — the auto-incremental Step 3
+above is what makes "indexing in progress" largely invisible to the
+user. Per-file errors are surfaced via the `errors` array.)
 
-### Step 4 — Retrieve
+### Step 5 — Retrieve
 
 ```
 mcp__piighost__query(
@@ -66,11 +98,11 @@ mcp__piighost__query(
 
 The returned excerpts are already redacted. Quote them verbatim.
 
-### Step 5 — Answer with citations
+### Step 6 — Answer with citations
 
 Every claim cites `<filename> p.<page>` (for PDFs) or `<filename>:<line-range>` (for text). If retrieval returns nothing, say so — never fabricate a citation.
 
-### Step 6 — Record the audit event
+### Step 7 — Record the audit event
 
 Once per user turn, append:
 
@@ -101,8 +133,9 @@ If the user asks you to draft a reply, email, Slack message, or to call `WebFetc
 
 ## Edge cases
 
-- Network drive (`Z:\`, `\\server\share`): watchers are unreliable. If `state == "indexed"` but `last_indexed_at` is >10 minutes old, warn the user and suggest `/index`.
-- Folder with >5 000 files: indexing may take several minutes. The first query after `/index` can return fewer results than expected — re-running the query once the status chip shows `ready` is the fix.
+- **Network drive** (`Z:\`, `\\server\share`): the auto-incremental Step 3 still works but each `index_path` call walks the whole folder via SMB, which can take several seconds even when nothing changed. Acceptable for now — if it becomes painful we'll add a debounce.
+- **Folder with >5 000 files**: even an unchanged-pass through `index_path` walks every entry; on a cold network drive this can spike to tens of seconds. If you notice a `duration_ms > 5000` in Step 3, mention it to the user before delivering the answer.
+- **Just-added file fails to extract** (e.g. encrypted PDF): Step 3's `errors` array surfaces it. Continue answering from the rest; mention the failed file at the end so the user can re-add a clean copy.
 
 ## Never do
 
