@@ -39,22 +39,18 @@ This is cheap on re-run. It ensures the data dir, vault key, and project exist.
 
 ### Step 3 — Check index status
 
-Read the resource:
+Call:
 
 ```
-piighost://folders/{b64_path}/status
+mcp__piighost__folder_status(folder=<abs_path>)
 ```
 
-where `b64_path = base64.urlsafe_b64encode(folder.encode()).decode().rstrip("=")`.
-
-> **Note on the URI scheme.** Both tools and resources are exposed by the `piighost` MCP server. Tool names use the `mcp__piighost__*` prefix; resource URIs use the `piighost://` scheme.
-
-The resource returns `{folder, project, state, total_docs, total_chunks, last_indexed_at}`.
+The tool returns `{folder, project, state, total_docs, total_chunks, last_indexed_at, errors, errors_truncated, total_errors}`.
 
 - `state == "empty"`: tell the user *"Indexing this folder — I'll answer as soon as it's ready. You can also run `/index` to force a full scan."* and call `mcp__piighost__index_path(path=<folder>, project=<project>)` in the background.
 - `state == "indexed"`: proceed.
 
-(The v0 resource only emits `empty` or `indexed` — there is no distinct `indexing` state. A running index simply shows `empty` until the first chunks land, then `indexed`. Per-file error reporting is exposed by `index_path`'s return value, not by the status resource.)
+(The v0 status only emits `empty` or `indexed` — there is no distinct `indexing` state. A running index simply shows `empty` until the first chunks land, then `indexed`. Per-file errors are surfaced via the `errors` array.)
 
 ### Step 4 — Retrieve
 
