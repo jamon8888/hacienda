@@ -35,9 +35,11 @@ If user passed `--format=md` (default), call:
 mcp__piighost__render_compliance_doc(
   data=<register>, format="md",
   profile=<from controller.profession>,
-  output_path="<folder>/rgpd-registre-<date>.md",
 )
 ```
+The daemon writes to `~/.piighost/exports/<project>-registre-<ts>.md` by default.
+For security, `output_path` (if specified) must resolve under `~/.piighost/`.
+
 For `pdf` or `docx`, switch the format. PDF requires the `[compliance]` extra installed.
 
 ### Step 4 — Show the result

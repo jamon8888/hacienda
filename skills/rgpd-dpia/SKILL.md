@@ -44,9 +44,10 @@ If the user wants a paper trail:
 mcp__piighost__render_compliance_doc(
   data=<dpia>, format="md",
   profile=<from controller.profession>,
-  output_path="<folder>/rgpd-dpia-<date>.md",
 )
 ```
+The daemon writes to `~/.piighost/exports/<project>-dpia_screening-<ts>.md` by default.
+For security, `output_path` (if specified) must resolve under `~/.piighost/`.
 
 ### Step 5 — Direct to CNIL PIA tool
 
