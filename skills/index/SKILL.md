@@ -15,9 +15,9 @@ argument-hint: "[full | incremental]"
 ## Workflow
 
 1. Parse `$1`: `"full"` → `force=true`, anything else → `force=false`.
-2. Call `mcp__hacienda__bootstrap_client_folder(folder=<active>)` → `project`. This is idempotent on re-run and already resolves the project hash, so no separate `resolve_project_for_folder` call is needed.
-3. Call `mcp__hacienda__index_path(path=<active>, recursive=true, force=<from step 1>, project=<project>)`.
-4. Poll `piighost://folders/{b64_path}/status` every few seconds (resource URIs keep the server-declared `piighost://` scheme — the Cowork alias only rewrites tool-name prefixes). Stream progress to the user: *"Indexing: 134 / 247 files …"*. The resource returns `{folder, project, state, total_docs, total_chunks, last_indexed_at}`.
+2. Call `mcp__piighost__bootstrap_client_folder(folder=<active>)` → `project`. This is idempotent on re-run and already resolves the project hash, so no separate `resolve_project_for_folder` call is needed.
+3. Call `mcp__piighost__index_path(path=<active>, recursive=true, force=<from step 1>, project=<project>)`.
+4. Poll `piighost://folders/{b64_path}/status` every few seconds. Stream progress to the user: *"Indexing: 134 / 247 files …"*. The resource returns `{folder, project, state, total_docs, total_chunks, last_indexed_at}`.
 5. When `state == "indexed"`, report: *"Indexed 247 files, 1 823 chunks. Ready."* (file-level error reporting is not yet exposed by the v0 status resource — if `index_path` returned a non-empty `errors` list in step 3, surface that instead.)
 6. If `index_path` reported errors in step 3, show the list and suggest re-running `/index full` on the affected files.
 

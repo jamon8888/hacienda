@@ -11,8 +11,8 @@ description: Show the index state of the folder currently open in Cowork — how
 
 ## Workflow
 
-1. Call `mcp__hacienda__resolve_project_for_folder(folder=<active>)` → `folder, project`.
-2. Read `piighost://folders/{b64_path}/status` (resource URIs keep the server-declared `piighost://` scheme; the Cowork alias only rewrites tool-name prefixes).
+1. Call `mcp__piighost__resolve_project_for_folder(folder=<active>)` → `folder, project`.
+2. Read `piighost://folders/{b64_path}/status`.
 3. Render:
 
 ```

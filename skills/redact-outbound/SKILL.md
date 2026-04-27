@@ -22,8 +22,8 @@ Piighost replaces PII with opaque tokens before any text reaches the model conte
 ## Rules when drafting outbound content
 
 1. **Keep placeholders verbatim.** Do not remove them. Do not prefix them (*"Mr. «PER_001»"* is wrong — the placeholder already represents the full personal reference).
-2. **Do not rehydrate for outbound.** If you need to show the user a real value on their screen (not in an outbound payload), call `mcp__hacienda__rehydrate_text` on the preview string only. The outbound payload keeps the placeholder.
-3. **If the user types a real name in chat**, call `mcp__hacienda__anonymize_text` on any text you incorporate into an outbound draft, including the user's words, before sending.
+2. **Do not rehydrate for outbound.** If you need to show the user a real value on their screen (not in an outbound payload), call `mcp__piighost__rehydrate_text` on the preview string only. The outbound payload keeps the placeholder.
+3. **If the user types a real name in chat**, call `mcp__piighost__anonymize_text` on any text you incorporate into an outbound draft, including the user's words, before sending.
 4. **For every outbound tool call**, append a `session_audit_append` event with `session_id=<project>` (the project hash returned by `resolve_project_for_folder` / `bootstrap_client_folder`), `op="outbound"`, `metadata={"tool": <name>, "n_placeholders": <count>}`. Never include raw payload text in the audit.
 
 ## Tools that count as "outbound"

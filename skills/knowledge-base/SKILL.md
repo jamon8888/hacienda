@@ -5,7 +5,7 @@ description: Search and answer questions from the user's current Cowork folder u
 
 # knowledge-base — PII-safe retrieval over the current folder
 
-This skill powers the `/ask` slash command and is implicitly used whenever the user asks about their files. It wraps the `piighost` MCP server (aliased as `hacienda`) and is the only sanctioned way to read folder contents.
+This skill powers the `/ask` slash command and is implicitly used whenever the user asks about their files. It wraps the `piighost` MCP server and is the only sanctioned way to read folder contents.
 
 ## Why this exists
 
@@ -22,7 +22,7 @@ Piighost has already solved this: every retrieval tool returns text where PII ha
 Cowork tells you the active folder path. Call:
 
 ```
-mcp__hacienda__resolve_project_for_folder(folder=<abs_path>)
+mcp__piighost__resolve_project_for_folder(folder=<abs_path>)
 ```
 
 Returns `{"folder": ..., "project": "<slug>-<hash8>"}`. Use `project` in every subsequent call so cross-folder retrieval is impossible.
@@ -32,7 +32,7 @@ Returns `{"folder": ..., "project": "<slug>-<hash8>"}`. Use `project` in every s
 On the first question of a session, call:
 
 ```
-mcp__hacienda__bootstrap_client_folder(folder=<abs_path>)
+mcp__piighost__bootstrap_client_folder(folder=<abs_path>)
 ```
 
 This is cheap on re-run. It ensures the data dir, vault key, and project exist.
@@ -47,11 +47,11 @@ piighost://folders/{b64_path}/status
 
 where `b64_path = base64.urlsafe_b64encode(folder.encode()).decode().rstrip("=")`.
 
-> **Note on the URI scheme.** MCP resource URIs are opaque strings owned by the server — they are NOT rewritten by the `hacienda` alias in `.mcp.json`. Tool names get the `mcp__hacienda__*` prefix; resource URIs keep their server-declared scheme, which is `piighost://`.
+> **Note on the URI scheme.** Both tools and resources are exposed by the `piighost` MCP server. Tool names use the `mcp__piighost__*` prefix; resource URIs use the `piighost://` scheme.
 
 The resource returns `{folder, project, state, total_docs, total_chunks, last_indexed_at}`.
 
-- `state == "empty"`: tell the user *"Indexing this folder — I'll answer as soon as it's ready. You can also run `/index` to force a full scan."* and call `mcp__hacienda__index_path(path=<folder>, project=<project>)` in the background.
+- `state == "empty"`: tell the user *"Indexing this folder — I'll answer as soon as it's ready. You can also run `/index` to force a full scan."* and call `mcp__piighost__index_path(path=<folder>, project=<project>)` in the background.
 - `state == "indexed"`: proceed.
 
 (The v0 resource only emits `empty` or `indexed` — there is no distinct `indexing` state. A running index simply shows `empty` until the first chunks land, then `indexed`. Per-file error reporting is exposed by `index_path`'s return value, not by the status resource.)
@@ -59,7 +59,7 @@ The resource returns `{folder, project, state, total_docs, total_chunks, last_in
 ### Step 4 — Retrieve
 
 ```
-mcp__hacienda__query(
+mcp__piighost__query(
   text=<user question>,
   k=5,
   project=<project>,
@@ -79,7 +79,7 @@ Every claim cites `<filename> p.<page>` (for PDFs) or `<filename>:<line-range>` 
 Once per user turn, append:
 
 ```
-mcp__hacienda__session_audit_append(
+mcp__piighost__session_audit_append(
   session_id=<project>,
   op="query",
   metadata={"question_hash": <sha256_hex_of_question>, "n_excerpts": <n>, "project": <project>},
@@ -95,7 +95,7 @@ Use the `project` name as `session_id` — that scopes the audit log to one JSON
 If the user asks you to draft a reply, email, Slack message, or to call `WebFetch` with folder content:
 
 - Treat every excerpt as **already anonymised** — the placeholders are the correct content to send.
-- If the user types a real name in chat (e.g. *"reply to Jean Martin"*), call `mcp__hacienda__anonymize_text` on any folder-derived text you include in the draft, then merge.
+- If the user types a real name in chat (e.g. *"reply to Jean Martin"*), call `mcp__piighost__anonymize_text` on any folder-derived text you include in the draft, then merge.
 - See the `redact-outbound` skill for placeholder semantics.
 
 ## Refusals
@@ -110,6 +110,6 @@ If the user asks you to draft a reply, email, Slack message, or to call `WebFetc
 
 ## Never do
 
-- Never read files in the Cowork folder with the built-in `Read` tool for content use — only for file type inspection (extension, size). All content must come through `mcp__hacienda__query`.
+- Never read files in the Cowork folder with the built-in `Read` tool for content use — only for file type inspection (extension, size). All content must come through `mcp__piighost__query`.
 - Never pass a `folder` argument the user typed. Only use the Cowork-declared active folder.
 - Never log raw PII in `session_audit_append`. Pass hashes, placeholders, or counts.

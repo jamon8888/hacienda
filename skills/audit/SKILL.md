@@ -11,8 +11,8 @@ description: Show the per-session redaction audit log — which placeholders wer
 
 ## Workflow
 
-1. Call `mcp__hacienda__resolve_project_for_folder(folder=<active>)` → `project`.
-2. Call `mcp__hacienda__session_audit_read(session_id=<project>)`. The audit log is scoped per folder (one JSONL file per `project`), not per conversation — Cowork does not expose a per-conversation identifier, and a per-folder log is what compliance reviewers actually want.
+1. Call `mcp__piighost__resolve_project_for_folder(folder=<active>)` → `project`.
+2. Call `mcp__piighost__session_audit_read(session_id=<project>)`. The audit log is scoped per folder (one JSONL file per `project`), not per conversation — Cowork does not expose a per-conversation identifier, and a per-folder log is what compliance reviewers actually want.
 3. Summarise — include every row below, even when the count is zero, so the report is deterministic:
 
 ```

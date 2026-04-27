@@ -1,12 +1,3 @@
 {
-  "mcpServers": {
-    "hacienda": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": ["--from", "piighost", "piighost", "serve", "--transport", "stdio"],
-      "env": {
-        "HACIENDA_DATA_DIR": "${HOME}/.hacienda"
-      }
-    }
-  }
+  "mcpServers": {}
 }
