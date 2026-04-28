@@ -5,7 +5,7 @@
 
 Ce plugin ajoute des commandes RGPD, juridiques et de recherche
 confidentielle à Claude Desktop. Il fonctionne avec le moteur
-[Hacienda Ghost](https://github.com/jamon8888/piighost) installé en
+[Hacienda Ghost](https://github.com/jamon8888/hacienda-ghost) installé en
 local — vos données clients ne sortent jamais de votre poste.
 
 ## Ce qu'apporte ce plugin
@@ -25,7 +25,7 @@ barre de commandes Claude :
 ## Installation
 
 L'installation passe par le moteur Hacienda Ghost. Voir le
-[README principal](https://github.com/jamon8888/piighost#installation-en-4-%C3%A9tapes)
+[README principal](https://github.com/jamon8888/hacienda-ghost#installation-en-4-%C3%A9tapes)
 pour les 4 étapes d'installation.
 
 Résumé : installer `uv`, lancer
@@ -54,7 +54,7 @@ Desktop.
 Toutes les données restent sur votre poste, chiffrées sur disque.
 Les requêtes vers Claude contiennent uniquement des étiquettes
 anonymisées. Détails complets :
-[README principal — Sécurité et confidentialité](https://github.com/jamon8888/piighost#s%C3%A9curit%C3%A9-et-confidentialit%C3%A9).
+[README principal — Sécurité et confidentialité](https://github.com/jamon8888/hacienda-ghost#s%C3%A9curit%C3%A9-et-confidentialit%C3%A9).
 
 ## Licence
 
