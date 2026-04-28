@@ -77,6 +77,26 @@ Show `defaults.duree_conservation_apres_fin_mission` (pre-filled). Ask: "Voulez-
 
 Capture as `defaults.duree_conservation_apres_fin_mission`.
 
+## Step 7 — Vérification de citations juridiques (optionnel)
+
+L'intégration OpenLégi permet de vérifier les références juridiques
+(articles, lois, jurisprudences) contre les sources officielles
+Legifrance + INPI + EUR-Lex. Toutes les requêtes sortantes sont
+anonymisées et auditées.
+
+Demander : "Voulez-vous activer cette intégration ? (oui / non / plus_tard)"
+
+- **oui** :
+  1. Demander : "Collez votre token PISTE (récupérable sur https://piste.gouv.fr) :"
+  2. Appeler `mcp__piighost__legal_credentials_set(token=<saisi>)`
+  3. Test ping : `mcp__piighost__search_legal(query="test", source="code", max_results=1)`
+  4. Si OK, ajouter à `controller.toml` : `[openlegi]\nenabled = true`
+  5. Confirmer : "✅ OpenLégi activé."
+
+- **non** : ajouter `[openlegi] enabled = false` à controller.toml
+
+- **plus_tard** : skip — l'utilisateur peut activer plus tard via `/hacienda:legal:setup`
+
 ## Write the profile
 
 Build the final profile dict:

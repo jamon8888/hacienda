@@ -49,6 +49,28 @@ mcp__piighost__render_compliance_doc(
 The daemon writes to `~/.piighost/exports/<project>-dpia_screening-<ts>.md` by default.
 For security, `output_path` (if specified) must resolve under `~/.piighost/`.
 
+## Step 5 (optional) — Enrichissement CNIL
+
+Si OpenLégi est activé (`controller_profile_get` → `openlegi.configured = true`),
+chercher les décisions CNIL pertinentes par rapport au verdict :
+
+```
+hits = mcp__piighost__search_legal(
+    query=<verdict_explanation + premier trigger.name>,
+    source="cnil",
+    max_results=3,
+)
+```
+
+Afficher chaque hit en complément du verdict :
+```
+📋 Décisions CNIL pertinentes
+- {{hit.title}} — {{hit.url}}
+```
+
+Ne pas faire échouer la skill si l'appel échoue ou retourne `[]` ;
+c'est un enrichissement, pas une exigence.
+
 ### Step 5 — Direct to CNIL PIA tool
 
 If verdict is `dpia_required` or `dpia_recommended`, surface:
