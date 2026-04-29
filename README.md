@@ -117,6 +117,32 @@ pour préserver les étiquettes anonymisées. Elle agit en arrière-plan.
 
 ## Sécurité et confidentialité
 
+Hacienda Ghost protège vos données clients sur **deux pistes complémentaires** :
+
+### Piste 1 — Anonymisation transparente du chat
+
+Vos conversations directes avec Claude (prompts tapés, réponses lues)
+passent automatiquement par notre proxy local et sont anonymisées avant
+forward vers Anthropic. Sur Windows c'est invisible (modification des
+raccourcis), sur macOS un raccourci "Claude (Privé)" est ajouté dans
+Applications.
+
+### Piste 2 — Outils RGPD `/hacienda:*` pour le travail sensible
+
+Pour rechercher, indexer, ou faire travailler Cowork sur un dossier
+client, utilisez les commandes `/hacienda:*` qui passent par le coffre-fort
+local — aucune donnée brute ne quitte jamais votre poste.
+
+> **Important — Cowork agentique sur macOS** : le mode Cowork (agent
+> autonome) tourne dans une VM Linux isolée par Apple. Hacienda n'a pas
+> accès à ce trafic. Pour les opérations Cowork sur des données
+> sensibles, utilisez impérativement les outils `/hacienda:*` (Piste 2).
+
+Voir [docs/security.md](https://github.com/jamon8888/hacienda-ghost/blob/main/docs/security.md)
+pour les détails techniques.
+
+### Frontières techniques
+
 Hacienda Ghost protège vos données via trois frontières strictes :
 
 - **Reste sur votre poste, chiffré sur disque.** Les noms, IBAN,
