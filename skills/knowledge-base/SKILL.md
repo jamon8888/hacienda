@@ -1,6 +1,16 @@
 ---
 name: knowledge-base
-description: [DEPRECATED — utilisez /hacienda:search] Search and answer questions from the user's current Cowork folder using PII-safe hybrid retrieval (BM25 + semantic vectors, cross-encoder reranker). Auto-refreshes the index incrementally before every retrieval, so files added/modified/removed since the last question are picked up without the user invoking /index. Use whenever the user asks about documents, emails, contracts, notes, invoices, or any content in the folder Cowork is currently pointed at. Always cites sources with file paths and excerpts. Placeholders like «PER_001» in retrieved excerpts are intentional — see the redact-outbound skill before including them in any draft sent to external tools (email, Slack, webfetch).
+description: >-
+  [DEPRECATED - utilisez /hacienda:search] Search and answer questions from
+  the user's current Cowork folder using PII-safe hybrid retrieval (BM25 +
+  semantic vectors, cross-encoder reranker). Auto-refreshes the index
+  incrementally before every retrieval, so files added, modified, or removed
+  since the last question are picked up without the user invoking /index.
+  Use whenever the user asks about documents, emails, contracts, notes,
+  invoices, or any content in the folder Cowork is currently pointed at.
+  Always cites sources with file paths and excerpts. Placeholders like
+  PER_001 in retrieved excerpts are intentional - see the redact-outbound
+  skill before including them in any draft sent to external tools.
 ---
 
 # knowledge-base — PII-safe retrieval over the current folder

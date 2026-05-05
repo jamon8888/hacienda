@@ -1,6 +1,12 @@
 ---
 name: legal-verify
-description: Vérifier les références juridiques françaises (articles de codes, lois, décrets, jurisprudences) contre les sources officielles via OpenLégi. Détecte les hallucinations (références inexistantes), numéros erronés, abrogations ignorées, jurisprudences fictives. Trois modes d'entrée : texte collé, fichier sur disque, document indexé. Génère un rapport JSON + Markdown.
+description: >-
+  Verifier les references juridiques francaises (articles de codes, lois,
+  decrets, jurisprudences) contre les sources officielles via OpenLegi.
+  Detecte les hallucinations (references inexistantes), numeros errones,
+  abrogations ignorees, jurisprudences fictives. Trois modes d'entree:
+  texte colle, fichier sur disque, document indexe. Genere un rapport JSON
+  et Markdown.
 argument-hint: "[--doc-id <id> | --project <name> | --file <path>]"
 ---
 
